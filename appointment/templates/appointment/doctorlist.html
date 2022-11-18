@@ -1,0 +1,9 @@
+{% extends "appointment/layout.html" %}
+{% block body %}
+    <div>
+        <ul>
+            {% for doctor in doctor %}
+            <li>{{doctor}}</li>
+            {% endfor %}
+    </div>
+{% endblock %}

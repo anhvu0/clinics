@@ -1,6 +1,9 @@
 {% extends "appointment/layout.html" %}
 {% block body %}
     <h2>Patients's information</h2>
+    {% if error_message %}
+        {{error_message}}
+    {% endif %}
         <ul>
             <li>{{patient}}</li>
         </ul>

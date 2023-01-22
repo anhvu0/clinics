@@ -43,13 +43,11 @@ def search_patient(request):
     if request.method == 'POST':
         form = Patients(request.POST)
         if form.is_valid():
-            if Patient.objects.get(Patients.name).count()==0 and Patient.objects.get(Patients.address).count()==0:
-                patientname=form.cleaned_data('name')
-                patientadress=form.cleaned_data('adress')
-                patientage=form.cleaned_data('age')
-                return HttpResponseRedirect(reverse('appointment:patient', args=patientname))
-            else:
-                return HttpResponse('Your information already existed')
+            patientname=form.cleaned_data('name')
+            patientaddress=form.cleaned_data('adress')
+            patientage=form.cleaned_data('age')
+            if Patient.objects.get(name=patientname).count()>0 and Patient.objects.get(address=patientaddress).cound()>0:
+                return render(request, 'appointment/patient.html', {'error_message':"Information already existed"})
     else:
         form = Patients()
     return render(request, 'appointment/add.html', {'form':form})

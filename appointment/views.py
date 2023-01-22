@@ -1,27 +1,36 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from .models import Patient,Doctor,Confirmation
 
 from django.http import HttpResponseRedirect, HttpResponse
 
-from .forms import Search, Add
-
 from django.urls import reverse
 
+from .forms import Patients
+
 # Create your views here.
-def patient(request, patient_id):
-    patient=Patient.objects.get(patient_id=patient_id)
+def home(request):
+    return render(request, 'appointment/home.html')
+
+def patient(request,patientname):
+    patient=Patient.objects.get(name=patientname)
     return render(request, "appointment/patient.html",{
         "patient":patient,
     }
     )
 
-def doctor(request, doctor_id):
-    doctor=Doctor.objects.get(doctor_id=doctor_id)
+def doctor(request, doctorname):
+    doctor=Doctor.objects.get(name=doctorname)
+    patient=Doctor.patient_set.all()
     return render(request, "appointment/doctor.html",{
         "doctor":doctor,
+        "patient":patient
     }
     )
+
+def doctorlist(request):
+    doctor=Doctor.objects.all()
+    return render(request, 'appointment/doctorlist.html', {"doctor":doctor})
 
 def confirmation(request, conf_number):
     confirmation=Confirmation.objects.get(conf_number=conf_number)
@@ -30,39 +39,22 @@ def confirmation(request, conf_number):
     }
     )
 
-def home(request):
-    context={}
-    form=Search(request.POST)
-    context["form"] = form
-    if request.POST:
+def search_patient(request):
+    if request.method == 'POST':
+        form = Patients(request.POST)
         if form.is_valid():
-            name=form.cleaned_data.get("name")
-            context["name"]=Patient.objects.get(patient_name=name)        
-    return render(request, "appointment/home.html", context,)
-
-def add(request):
-    context={}
-    form=Add(request.POST)
-    context["form"] = form
-    if request.POST:
-        if form.is_valid():
-            name=form.cleaned_data.get("name")
-            address=form.cleaned_data.get("address")
-            age=form.cleaned_data.get("age")
-            id=form.cleaned_data.get("id")
-            if Patient.objects.filter(patient_id=id).exist():
-                return HttpResponse("This id already belongs to another patient.")
+            if Patient.objects.get(Patients.name).count()==0 and Patient.objects.get(Patients.address).count()==0:
+                patientname=form.cleaned_data('name')
+                patientadress=form.cleaned_data('adress')
+                patientage=form.cleaned_data('age')
+                return HttpResponseRedirect(reverse('appointment:patient', args=patientname))
             else:
-                context["name"]=Patient.objects.create(patient_name=name)
-                context["address"]=Patient.objects.create(patient_address=address)
-                context["age"]=Patient.objects.create(patient_age=age)
-                context["id"]=Patient.objects.create(patient_id=id)     
-    return render(request, "appointment/add.html", context,)
+                return HttpResponse('Your information already existed')
+    else:
+        form = Patients()
+    return render(request, 'appointment/add.html', {'form':form})
+    
+    
 
-def doctorlist(request):
-    doctor=Doctor.objects.all()
-    return render(request, "appointment/doctorlist.html",{
-        "doctor":doctor}
-        )
 
 

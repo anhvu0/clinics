@@ -1,14 +1,6 @@
 {% extends "appointment/layout.html" %}
 {% block body %}
     <h2>Welcome to the clinic</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{form}}
-        <input type="submit" value="Enter">
-    </form>
-    <div>
-        The patient id is: <a href="{{name.patient_id}}">{{name.patient_id}}</a>
-    </div>
     <div>
        <a href="add">Click here to add new patient</a>
     </div>
